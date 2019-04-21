@@ -106,15 +106,16 @@ def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], epochs: int,
     weights = np.random.uniform(low=-0.7, high=0.7, size=x.shape[0])
     for epoch in range(epochs):
         cost, dw, db = calculate_derivatives(x.to_numpy(), y.to_numpy(), weights, bias)
-        print('The cost in epoch {0} was {1}'.format(epoch, cost))
+        if epoch % 50 == 0:
+            print('The cost in epoch {0} was {1}'.format(epoch, cost))
         costs.append(cost)
         weights -= learning_rate * (dw + regularization_term / n_samples * weights)
         bias -= learning_rate * (db + regularization_term / n_samples * bias)
     print('Finished training, trained during {0}'.format(epochs))
-    return weights, bias, costs
+    return weights, bias, np.array(costs)
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('./iris.data', header=None)
+    df = pd.read_csv('data/iris.data', header=None)
     train = generate_data_with_features(df, [0, 2], normalise=True)
     weights, bias, costs = train_model(train, epochs=int(10e4), learning_rate=0.2, regularization_term=0.02)
