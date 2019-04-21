@@ -65,7 +65,8 @@ def predict(x: np.ndarray, weights: np.ndarray, bias: float):
     return sigmoid(weighted_input)
 
 
-def calculate_derivatives(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float):
+def calculate_derivatives(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float,
+                          regularization_term: float = 0):
     """
     Method that propagates the input and calculates the cost and the derivative of the
     weights and the biases.
@@ -74,29 +75,46 @@ def calculate_derivatives(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bia
     :param y: output data
     :param weights: weights of the model
     :param bias: bias of the model
+    :param regularization_term: value of lambda
     :return: tuple with the cost, the derivative of the weights and bias
     """
     n_samples = y.shape[1]
     activation = predict(x, weights, bias)
     cost = np.mean(-y * np.log(activation) - (1 - y) * np.log(1 - activation))
+    cost = cost + regularization_term / (2 * n_samples) * np.dot(weights.T, weights)  # lambda/2m*sum(theta^2)
     dz = -(y - activation) / n_samples
-    dw = np.dot(dz, x.T)
+    dw = np.dot(dz, x.T).squeeze()
     db = np.sum(dz)
     return cost, dw, db
 
 
-def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], learning_rate: float, epochs: int):
+def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], epochs: int,
+                learning_rate: float = 0.5, regularization_term: float = 0):
+    """
+    Method to train the model
+
+    :param train_data: training data, with the features and the outputs
+    :param epochs: number of epochs to train the model
+    :param learning_rate: value of the learning rate, alpha
+    :param regularization_term: value of the regularization term, lambda
+    :return: weights and bias of the trained model. List of the costs during training
+    """
     x, y = train_data  # extract the data and the classes
+    n_samples = y.shape[1]
+    costs = list()
     bias = 1
     weights = np.random.uniform(low=-0.7, high=0.7, size=x.shape[0])
     for epoch in range(epochs):
-        cost, dw, db = calculate_derivatives(x.values, y.values, weights, bias)
-        weights += learning_rate * dw
-        bias += learning_rate * bias
-    return weights, bias
+        cost, dw, db = calculate_derivatives(x.to_numpy(), y.to_numpy(), weights, bias)
+        print('The cost in epoch {0} was {1}'.format(epoch, cost))
+        costs.append(cost)
+        weights -= learning_rate * (dw + regularization_term / n_samples * weights)
+        bias -= learning_rate * (db + regularization_term / n_samples * bias)
+    print('Finished training, trained during {0}'.format(epochs))
+    return weights, bias, costs
 
 
 if __name__ == '__main__':
     df = pd.read_csv('./iris.data', header=None)
     train = generate_data_with_features(df, [0, 2], normalise=True)
-    train_model(train, train, 0.2, 100)
+    weights, bias, costs = train_model(train, epochs=int(10e4), learning_rate=0.2, regularization_term=0.02)
