@@ -101,8 +101,8 @@ def calculate_derivatives(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bia
     Method that propagates the input and calculates the cost and the derivative of the
     weights and the biases.
 
-    :param x: input data
-    :param y: output data
+    :param x: features of the data
+    :param y: classes of the data
     :param weights: weights of the model
     :param bias: bias of the model
     :param regularization_term: value of lambda
@@ -193,18 +193,28 @@ def test_model(test_data: Tuple[pd.DataFrame, pd.DataFrame], weights: np.ndarray
     return percentage_error
 
 
-def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float):
-    # Get the indexes of each class
+def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float) -> None:
+    """
+    Method that plot the data and the decision boundary of a given
+    logistic regression model, using the bias term and the weights.
+
+    :param x: features of the data
+    :param y: classes of the data
+    :param weights: weights of the model
+    :param bias: bias of the model
+    """
+    # get the indexes of each class
     zero = np.where(y == 0)[1]
     one = np.where(y == 1)[1]
-    # plots
+
     plt.scatter(x[0][zero], x[1][zero], s=10, label='Class 0')
     plt.scatter(x[0][one], x[1][one], s=10, label='Class 1')
 
+    # decision boundary
     x_values = [np.min(x[0, :]), np.max(x[0, :])]
     y_values = - (bias + np.dot(weights[0], x_values)) / weights[1]
-
     plt.plot(x_values, y_values, label='Decision Boundary')
+
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
     plt.legend()
