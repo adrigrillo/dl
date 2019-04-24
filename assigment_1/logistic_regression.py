@@ -142,7 +142,7 @@ def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], epochs: int, lear
         costs.append(cost)
         weights -= learning_rate * (dw + regularization_term / n_samples * weights)
         bias -= learning_rate * (db + regularization_term / n_samples * bias)
-    print('Finished training, trained during {0}'.format(epochs))
+    print('Finished training, trained during {0} epochs'.format(epochs))
     return weights, bias, np.array(costs)
 
 
