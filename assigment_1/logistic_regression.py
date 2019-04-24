@@ -162,6 +162,7 @@ def plot_with_different_rates(train_data: Tuple[pd.DataFrame, pd.DataFrame], lea
     :param plot: flag to show in the screen the figure
     """
     for rt in regularization_terms:
+        plt.figure()
         features_used = train_data[0].T.columns.values
         features_used = "-".join(repr(i) for i in features_used)
         for lr in learning_rates:
@@ -337,10 +338,10 @@ if __name__ == '__main__':
                                                       test_elements=test_elements)
 
     # train different rates
-    alphas = [0.005, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1, 10]  # Learning rate
-    lambdas = [0, 0.05, 0.5, 1, 10]
-    plot_features_combinations(df, elements=100, learning_rates=alphas, regularization_terms=lambdas,
-                               epochs=args.epochs)
+    # alphas = [0.005, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1, 10]  # Learning rate
+    # lambdas = [0, 0.05, 0.5, 1, 10]
+    # plot_features_combinations(df, elements=100, learning_rates=alphas, regularization_terms=lambdas,
+    #                            epochs=args.epochs)
     # train
     # weights, bias, costs = train_model(train, epochs=args.epochs, learning_rate=0.2, regularization_term=0.0)
     # print(test_model(test, weights, bias))
