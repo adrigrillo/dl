@@ -316,8 +316,10 @@ if __name__ == '__main__':
                                                regularization_term=args.regularization_term)
             print('The accuracy in the test is {0}'.format(test_model(train, weights, bias)))
             train_x, train_y = train
-            str_id = 'iris_lr-{0}_rt-{1}'.format(args.learning_rate, args.regularization_term)
-            plot_boundary(train_x.to_numpy(), train_y.to_numpy(), weights=weights, bias=bias, str_id=str_id)
+            features_used = "-".join(repr(i) for i in args.features)
+            str_id = 'iris-{0}_lr-{1}_rt-{2}'.format(features_used, args.learning_rate, args.regularization_term)
+            plot_boundary(train_x.to_numpy(), train_y.to_numpy(), weights=weights, bias=bias,
+                          str_id=str_id, plot=args.plot)
 
     elif args.dataset == "monk":
         df = pd.DataFrame(loadmat('./data/monk2.mat')['monk2'])
@@ -332,5 +334,7 @@ if __name__ == '__main__':
                                                regularization_term=args.regularization_term)
             print('The accuracy in the test is {0}'.format(test_model(test, weights, bias)))
             test_x, test_y = test
-            str_id = 'monk_lr-{0}_rt-{1}'.format(args.learning_rate, args.regularization_term)
-            plot_boundary(test_x.to_numpy(), test_y.to_numpy(), weights=weights, bias=bias, str_id=str_id)
+            features_used = "-".join(repr(i) for i in args.features)
+            str_id = 'monk-{0}_lr-{1}_rt-{2}'.format(features_used, args.learning_rate, args.regularization_term)
+            plot_boundary(test_x.to_numpy(), test_y.to_numpy(), weights=weights, bias=bias,
+                          str_id=str_id, plot=args.plot)
