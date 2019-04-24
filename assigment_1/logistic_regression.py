@@ -336,6 +336,7 @@ if __name__ == '__main__':
             train, test = generate_data_with_features(df, features=args.features, test_elements=test_elements)
             weights, bias, costs = train_model(train, epochs=args.epochs, learning_rate=args.learning_rate,
                                                regularization_term=args.regularization_term)
+            print('The accuracy in the train is {0}'.format(test_model(train, weights, bias)))
             print('The accuracy in the test is {0}'.format(test_model(test, weights, bias)))
             test_x, test_y = test
             features_used = "-".join(repr(i) for i in args.features)
