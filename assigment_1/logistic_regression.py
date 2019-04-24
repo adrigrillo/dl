@@ -173,6 +173,8 @@ def plot_with_different_rates(train_data: Tuple[pd.DataFrame, pd.DataFrame], lea
         plt.savefig('./images/f-{0}_rt-{1}.png'.format(features_used, rt))
         if plot:
             plt.show()
+        else:
+            plt.close()
 
 
 def plot_features_combinations(data: pd.DataFrame, elements: int, learning_rates: List[float],
@@ -282,6 +284,8 @@ def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray,
 
     if plot:
         plt.show()
+    else:
+        plt.close()
 
 
 if __name__ == '__main__':
