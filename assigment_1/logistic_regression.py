@@ -137,13 +137,60 @@ def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], epochs: int, lear
     for epoch in range(epochs):
         cost, dw, db = calculate_derivatives(x=x.to_numpy(), y=y.to_numpy(), weights=weights,
                                              bias=bias, regularization_term=regularization_term)
-        if epoch % 500 == 0:
+        if epoch % 1000 == 0:
             print('The cost in epoch {0} was {1}'.format(epoch, cost))
         costs.append(cost)
         weights -= learning_rate * (dw + regularization_term / n_samples * weights)
         bias -= learning_rate * (db + regularization_term / n_samples * bias)
     print('Finished training, trained during {0}'.format(epochs))
     return weights, bias, np.array(costs)
+
+
+def predict(x: np.ndarray, weights: np.ndarray, bias: float) -> np.ndarray:
+    """
+    Method that outputs the system response
+    of a given input, weights and biases.
+
+    :param x: input data
+    :param weights: tuple with the weights
+    :param bias: value of the biases
+    :return: output of the system for each row of the input
+    """
+    activation = forward_pass(x, weights, bias)
+    return 1 * (activation > 0.5)
+
+
+def test_model(test_data: Tuple[pd.DataFrame, pd.DataFrame], weights: np.ndarray,
+               bias: float) -> float:
+    """
+    Method that calculates the accuracy given a test dataset.
+
+    :param test_data: test data, with the features and the outputs
+    :param weights: weights of the trained model
+    :param bias: bias of the trained model
+    :return: accuracy in the data
+    """
+    x, y = test_data
+    predicted_y = predict(x.to_numpy(), weights, bias)
+    diff_pred_real = abs(predicted_y - y.to_numpy().squeeze())
+    percentage_error = np.count_nonzero(diff_pred_real == 1) / len(diff_pred_real)
+    return 1 - percentage_error
+
+
+def get_prob_and_cost(x: np.ndarray, y: np.ndarray, weights: np.ndarray,
+                      bias: float) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Method that outputs the system response
+    of a given input, weights and biases.
+
+    :param x: input data
+    :param weights: tuple with the weights
+    :param bias: value of the biases
+    :return: output of the system
+    """
+    activation: np.ndarray = forward_pass(x, weights, bias)
+    cost: np.ndarray = -y * np.log(activation) - (1 - y) * np.log(1 - activation)
+    return activation, cost.squeeze()
 
 
 def plot_with_different_rates(train_data: Tuple[pd.DataFrame, pd.DataFrame], learning_rates: List[float],
@@ -199,53 +246,6 @@ def plot_features_combinations(data: pd.DataFrame, elements: int, learning_rates
                                                       test_elements=test_elements)
             plot_with_different_rates(train, epochs=epochs, learning_rates=learning_rates,
                                       regularization_terms=regularization_terms, plot=plot)
-
-
-def predict(x: np.ndarray, weights: np.ndarray, bias: float) -> np.ndarray:
-    """
-    Method that outputs the system response
-    of a given input, weights and biases.
-
-    :param x: input data
-    :param weights: tuple with the weights
-    :param bias: value of the biases
-    :return: output of the system for each row of the input
-    """
-    activation = forward_pass(x, weights, bias)
-    return 1 * (activation > 0.5)
-
-
-def get_prob_and_cost(x: np.ndarray, y: np.ndarray, weights: np.ndarray,
-                      bias: float) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Method that outputs the system response
-    of a given input, weights and biases.
-
-    :param x: input data
-    :param weights: tuple with the weights
-    :param bias: value of the biases
-    :return: output of the system
-    """
-    activation: np.ndarray = forward_pass(x, weights, bias)
-    cost: np.ndarray = -y * np.log(activation) - (1 - y) * np.log(1 - activation)
-    return activation, cost.squeeze()
-
-
-def test_model(test_data: Tuple[pd.DataFrame, pd.DataFrame], weights: np.ndarray,
-               bias: float) -> float:
-    """
-    Method that calculates the accuracy given a test dataset.
-
-    :param test_data: test data, with the features and the outputs
-    :param weights: weights of the trained model
-    :param bias: bias of the trained model
-    :return: accuracy in the data
-    """
-    x, y = test_data
-    predicted_y = predict(x.to_numpy(), weights, bias)
-    diff_pred_real = abs(predicted_y - y.to_numpy().squeeze())
-    percentage_error = np.count_nonzero(diff_pred_real == 1) / len(diff_pred_real)
-    return 1 - percentage_error
 
 
 def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray,
