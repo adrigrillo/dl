@@ -10,7 +10,7 @@ from sklearn import preprocessing
 
 
 def generate_data_with_features(data: pd.DataFrame, features: List[int], elements: int = None,
-                                normalise: bool = False, test_elements: int = 0) -> \
+                                normalise: bool = True, test_elements: int = 0) -> \
         Tuple[Tuple[pd.DataFrame, pd.DataFrame], Tuple[pd.DataFrame, pd.DataFrame]]:
     """
     Method to obtain a dataset with the features and the size desired. This
@@ -146,6 +146,68 @@ def train_model(train_data: Tuple[pd.DataFrame, pd.DataFrame], epochs: int, lear
     return weights, bias, np.array(costs)
 
 
+def plot_with_different_rates(train_data: Tuple[pd.DataFrame, pd.DataFrame], learning_rates: List[float],
+                              regularization_terms: List[float], epochs: int = 10000,
+                              boundary: bool = False, plot: bool = True) -> None:
+    """
+    Method that trains and plots the cost of a given training data. This method will save the
+    figures in the folder 'images' with a name indicating the features used and the regularization
+    term used.
+
+    :param train_data: data to train the model, with features and class
+    :param learning_rates: list of the learning rates to test
+    :param regularization_terms: list of regularization rates to test
+    :param epochs: number of epochs to train each combination
+    :param boundary: flag to plot the decision boundary
+    :param plot: flag to show in the screen the figure
+    """
+    for rt in regularization_terms:
+        features_used = train_data[0].T.columns.values
+        features_used = "-".join(repr(i) for i in features_used)
+        for lr in learning_rates:
+            weights, bias, costs = train_model(train_data, epochs=epochs, learning_rate=lr, regularization_term=rt)
+            if boundary:
+                train_x, train_y = train_data
+                str_id = 'f-{0}_lr-{1}_rt{2}'.format(features_used, lr, rt)
+                plot_boundary(x=train_x.to_numpy(), y=train_y.to_numpy(), weights=weights,
+                              bias=bias, str_id=str_id, plot=plot)
+            plt.plot(costs, label='alpha: {0}, lambda: {1}'.format(lr, rt))
+            plt.xlabel('Epochs')
+            plt.ylabel('Cost')
+        plt.title('Training {0} with regularization term {1} and different learning rates'.format(features_used, rt))
+        plt.legend()
+        plt.savefig('./images/f-{0}_rt-{1}.png'.format(features_used, rt))
+        if plot:
+            plt.show()
+
+
+def plot_features_combinations(data: pd.DataFrame, elements: int, learning_rates: List[float],
+                               regularization_terms: List[float], epochs: int = 10000,
+                               test_elements: int = 0, boundary: bool = False,
+                               plot: bool = False) -> None:
+    """
+    Method that uses all possible binary combination of parameters to train different logistic regressions
+    using different learning rates and regularization rates.
+
+    :param data: data to train the model, full dataframe
+    :param elements: number of elements that will be used to train
+    :param learning_rates: list of the learning rates to test
+    :param regularization_terms: list of regularization rates to test
+    :param epochs: number of epochs to train each combination
+    :param test_elements: number of rows to be used as test
+    :param boundary: flag to plot the decision boundary
+    :param plot: flag to show in the screen the figure
+    """
+    num_features = len(data.columns.values) - 1  # remove class
+    for i in range(num_features):
+        for j in range(i + 1, num_features):
+            train, test = generate_data_with_features(data, features=[i, j], elements=elements,
+                                                      test_elements=test_elements)
+            plot_with_different_rates(train, learning_rates=learning_rates,
+                                      regularization_terms=regularization_terms,
+                                      epochs=epochs, boundary=boundary, plot=plot)
+
+
 def predict(x: np.ndarray, weights: np.ndarray, bias: float) -> np.ndarray:
     """
     Method that outputs the system response
@@ -193,7 +255,8 @@ def test_model(test_data: Tuple[pd.DataFrame, pd.DataFrame], weights: np.ndarray
     return percentage_error
 
 
-def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float) -> None:
+def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray,
+                  bias: float, str_id: str, plot: bool = True) -> None:
     """
     Method that plot the data and the decision boundary of a given
     logistic regression model, using the bias term and the weights.
@@ -202,6 +265,7 @@ def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float
     :param y: classes of the data
     :param weights: weights of the model
     :param bias: bias of the model
+    :param plot: flag to show the figure in the screen
     """
     # get the indexes of each class
     zero = np.where(y == 0)[1]
@@ -218,34 +282,68 @@ def plot_boundary(x: np.ndarray, y: np.ndarray, weights: np.ndarray, bias: float
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
     plt.legend()
-    plt.show()
+
+    if str_id is None:
+        str_id = "-".join(repr(i) for i in weights)
+
+    plt.savefig('./images/boundary-{0}.png'.format(str_id))
+
+    if plot:
+        plt.show()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', type=str, choices=['iris', 'monk'], default='iris')
-    parser.add_argument('-f', '--features', type=int, nargs='+')
     parser.add_argument('-e', '--epochs', type=int)
+    parser.add_argument('-f', '--features', type=int, nargs='+', required=False)
+    parser.add_argument('-a', '--alphas', type=float, nargs='+', required=False)
+    parser.add_argument('-l', '--lambdas', type=float, nargs='+', required=False)
+    parser.add_argument('-b', '--boundary', action='store_true')
+    parser.add_argument('-p', '--plot', action='store_true')
     args = parser.parse_args()
 
     # load datasets
     df = None
     train = None
     test = None
+    elements = None
     test_elements = 0
 
     # generate data
     if args.dataset == 'iris':
         df = pd.read_csv('./data/iris.data', header=None)
-        train, test = generate_data_with_features(df, elements=100, features=args.features, normalise=True)
+        if args.features is None:
+            plot_features_combinations(df, elements=100, test_elements=test_elements,
+                                       learning_rates=args.alphas, regularization_terms=args.lambdas,
+                                       epochs=args.epochs, boundary=args.boundary, plot=args.plot)
+        else:
+            train, test = generate_data_with_features(df, elements=100, features=args.features)
+            weights, bias, costs = train_model(train, epochs=args.epochs, learning_rate=0.2, regularization_term=0.0)
+            print(test_model(test, weights, bias))
+            test_x, test_y = test
+            get_prob_and_cost(test_x.to_numpy(), test_y.to_numpy(), weights, bias)
+            plot_boundary(test_x.to_numpy(), test_y.to_numpy(), weights, bias)
     elif args.dataset == "monk":
         df = pd.DataFrame(loadmat('./data/monk2.mat')['monk2'])
         test_elements = math.floor(len(df) * 0.2)
-        train, test = generate_data_with_features(df, features=args.features, normalise=True,
-                                                  test_elements=test_elements)
+        if args.features is None:
+            plot_features_combinations(df, elements=elements, test_elements=test_elements,
+                                       learning_rates=args.alphas, regularization_terms=args.lambdas,
+                                       epochs=args.epochs,boundary=args.boundary,plot=args.plot)
+        else:
 
+            train, test = generate_data_with_features(df, features=args.features, normalise=True,
+                                                      test_elements=test_elements)
+
+    # train different rates
+    alphas = [0.005, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1, 10]  # Learning rate
+    lambdas = [0, 0.05, 0.5, 1, 10]
+    plot_features_combinations(df, elements=100, learning_rates=alphas, regularization_terms=lambdas,
+                               epochs=args.epochs)
     # train
-    weights, bias, costs = train_model(train, epochs=args.epochs, learning_rate=0.2, regularization_term=0.0)
-    print(test_model(train, weights, bias))
-    get_prob_and_cost(train[0].to_numpy(), train[1].to_numpy(), weights, bias)
-    plot_boundary(train[0].to_numpy(), train[1].to_numpy(), weights, bias)
+    # weights, bias, costs = train_model(train, epochs=args.epochs, learning_rate=0.2, regularization_term=0.0)
+    # print(test_model(test, weights, bias))
+    # test_x, test_y = test
+    # get_prob_and_cost(test_x.to_numpy(), test_y.to_numpy(), weights, bias)
+    # plot_boundary(test_x.to_numpy(), test_y.to_numpy(), weights, bias)
