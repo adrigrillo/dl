@@ -1,1 +1,0 @@
-# Forecasting a signal
