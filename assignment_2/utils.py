@@ -19,8 +19,8 @@ def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray,
     :param window_size: number of data points that are included in the x elements
     :return: tuple with the values of x and y
     """
-    x = []
-    y = []
+    x = list()
+    y = list()
     # number of examples that can be created with the given time series
     num_possible_x = time_series.shape[0] - window_size
     for x_first_index in range(num_possible_x - 1):
@@ -32,10 +32,10 @@ def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray,
 
 def generate_train_and_validation_sets(x_data: np.ndarray, y_data: np.ndarray, folds: int,
                                        seed: int = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    x_train_folds = []
-    y_train_folds = []
-    x_test_folds = []
-    y_test_folds = []
+    x_train_folds = list()
+    y_train_folds = list()
+    x_test_folds = list()
+    y_test_folds = list()
     k_folder = KFold(n_splits=folds, random_state=seed)
     for train_index, test_index in k_folder.split(x_data):
         x_train, x_test = x_data[train_index], x_data[test_index]
