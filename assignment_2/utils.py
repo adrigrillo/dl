@@ -3,6 +3,7 @@ a function to plot predictions."""
 from typing import Tuple
 
 import numpy as np
+from sklearn.model_selection import KFold
 
 
 def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -27,3 +28,20 @@ def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray,
         x.append(time_series[x_first_index:x_last_index])
         y.append(time_series[x_last_index])
     return np.array(x), np.array(y)
+
+
+def generate_train_and_validation_sets(x_data: np.ndarray, y_data: np.ndarray, folds: int,
+                                       seed: int = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    x_train_folds = []
+    y_train_folds = []
+    x_test_folds = []
+    y_test_folds = []
+    k_folder = KFold(n_splits=folds, random_state=seed)
+    for train_index, test_index in k_folder.split(x_data):
+        x_train, x_test = x_data[train_index], x_data[test_index]
+        y_train, y_test = y_data[train_index], y_data[test_index]
+        x_train_folds.append(x_train)
+        x_test_folds.append(x_test)
+        y_train_folds.append(y_train)
+        y_test_folds.append(y_test)
+    return np.array(x_train_folds), np.array(y_train_folds), np.array(x_test_folds), np.array(y_test_folds)
