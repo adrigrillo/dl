@@ -1,25 +1,25 @@
 # %%
 import keras
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
 
 # %% Load and plot the y
 from utils import process_data, generate_train_and_validation_sets
 
-time_series: np.ndarray = loadmat('data/Xtrain.mat')['Xtrain'].squeeze()
+time_series: np.ndarray = loadmat('data/Xtrain.mat')['Xtrain']
 data_points = time_series.shape[0]
 
 # %%
-plt.figure(1, figsize=[15, 5])
-plt.plot(time_series)
-plt.xlabel('x')
-plt.xlabel('y')
-plt.title('Time series data')
-plt.show()
+# plt.figure(1, figsize=[15, 5])
+# plt.plot(time_series)
+# plt.xlabel('x')
+# plt.xlabel('y')
+# plt.title('Time series data')
+# plt.show()
 
 # %%
-x, y = process_data(time_series, 3)
+x, y = process_data(time_series, window_size=3)
 x_train_folds, y_train_folds, x_test_folds, y_test_folds = generate_train_and_validation_sets(x, y, folds=10)
 
 # %% encoder-decoder method
@@ -39,7 +39,7 @@ encoder_input_layer = keras.layers.Input(shape=(None, num_input_features))
 encoder_neurons = []
 for hidden_neurons in layers:
     encoder_neurons.append(keras.layers.GRUCell(hidden_neurons))
-
+np.array(x_train_folds)
 encoder = keras.layers.RNN(encoder_neurons, return_state=True)
 
 encoder_outputs_and_states = encoder(encoder_input_layer)
@@ -76,11 +76,9 @@ model = keras.models.Model(inputs=[encoder_input_layer, decoder_input_layer], ou
 model.compile(optimizer=optimiser, loss=loss)
 
 # %%
-train_input = list()
-for index in range(x.shape[0]):
-    input_decoder = np.zeros(x[index].shape)
-    train_input.append(np.array([x[index], input_decoder]))
+decoder_input = np.zeros((x.shape[0], 1, 1))
 
 # %%
-model.fit(train_input[0], y[0], steps_per_epoch=100, epochs=100)
-
+# (1,3,1) shape of the input
+model.fit([x, decoder_input], y, steps_per_epoch=100, epochs=100)
+print('trained')
