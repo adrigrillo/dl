@@ -1,5 +1,3 @@
-"""Contains functions to generate artificial data for predictions as well as
-a function to plot predictions."""
 from typing import Tuple
 
 import numpy as np
