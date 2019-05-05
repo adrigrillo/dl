@@ -1,7 +1,20 @@
 from typing import Tuple
 
 import numpy as np
+from sklearn import preprocessing
 from sklearn.model_selection import KFold
+
+
+def normalize_data(time_series: np.ndarray) -> np.ndarray:
+    """
+    Normalization of the data
+
+    :param time_series: time series to normalize
+    :return: normalized time series
+    """
+    time_series = np.reshape(time_series, newshape=(time_series.shape[0], 1))
+    min_max_scaler = preprocessing.MinMaxScaler()
+    return min_max_scaler.fit_transform(time_series)
 
 
 def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray, np.ndarray]:

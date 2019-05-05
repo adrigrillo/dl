@@ -33,6 +33,6 @@ def plot_comparison(predicted_data: np.ndarray, real_data: np.ndarray, plot: boo
     # Save file with timestamp of the execution
     time = datetime.now()
     timestamp = '{0}-{1}-{2}'.format(str(time.hour), str(time.minute), str(time.second))
-    plt.savefig('../images/comparison_{0}.png'.format(timestamp))
+    plt.savefig('images/comparison_{0}.png'.format(timestamp))
     if plot:
         plt.show()
