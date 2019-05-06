@@ -4,6 +4,8 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.model_selection import KFold
 
+min_max_scaler = preprocessing.MinMaxScaler()
+
 
 def normalize_data(time_series: np.ndarray) -> np.ndarray:
     """
@@ -13,11 +15,10 @@ def normalize_data(time_series: np.ndarray) -> np.ndarray:
     :return: normalized time series
     """
     time_series = np.reshape(time_series, newshape=(time_series.shape[0], 1))
-    min_max_scaler = preprocessing.MinMaxScaler()
     return min_max_scaler.fit_transform(time_series)
 
 
-def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray, np.ndarray]:
+def process_data(time_series: np.ndarray, window_size: int, dimensions: int = 2) -> Tuple[np.ndarray, np.ndarray]:
     """
     Method that process a time series and creates the data required to train and test the
     neural network.
@@ -31,8 +32,12 @@ def process_data(time_series: np.ndarray, window_size: int) -> Tuple[np.ndarray,
     :return: tuple with the values of x and y and the specified shapes
     """
     n_possible_elements = time_series.shape[0] - window_size - 1
-    shape_x = (window_size, 1)
-    shape_y = (1, 1)
+    if dimensions == 2:
+        shape_x = (window_size,)
+        shape_y = (1,)
+    else:
+        shape_x = (window_size, 1)
+        shape_y = (1, 1)
     x = np.empty((n_possible_elements,) + shape_x)
     y = np.empty((n_possible_elements,) + shape_y)
     for i in range(n_possible_elements):
