@@ -1,4 +1,3 @@
-from collections import deque
 from typing import Tuple
 
 import numpy as np
@@ -32,8 +31,8 @@ class MLP:
         self.model = Model(inputs=inputs, outputs=predictions)
         self.model.compile(optimizer=optimizer, loss=loss)
 
-    def fit(self, inputs: np.ndarray, outputs: np.ndarray, epochs: int = 100) -> History:
-        return self.model.fit(inputs, outputs, epochs=epochs)
+    def fit(self, inputs: np.ndarray, outputs: np.ndarray, batch_size: int = 1, epochs: int = 100) -> History:
+        return self.model.fit(inputs, outputs, batch_size=batch_size, epochs=epochs)
 
     def predict(self, data, number_of_steps):
         predictions = np.empty(shape=(number_of_steps,))

@@ -30,11 +30,14 @@ y = y[:800]
 keras.backend.clear_session()
 optimizer = Adam(0.01)
 loss = root_mean_square_error
-model = MLP(hidden_layers=(5, 3), input_size=(windows,), optimizer=optimizer, loss=loss, activation='sigmoid')
+model = MLP(input_size=(windows,), optimizer=optimizer, loss=loss)
 
 # %%
-history = model.fit(x, y)
+history = model.fit(x, y, batch_size=1, epochs=10)
 # %%
+val_error = model.model.evaluate(x_test, y_test)
+print('The validation error using x_test and y_test is {0}'.format(val_error))
+#%%
 test_1 = np.reshape(x_test[0], newshape=(1, windows))
 predictions = model.predict(test_1, 200)
 
