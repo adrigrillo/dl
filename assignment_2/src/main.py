@@ -34,8 +34,7 @@ keras.backend.clear_session()
 optimizer = Adam(0.01)
 loss = root_mean_square_error
 model = MLP(input_size=(windows,), optimizer=optimizer, loss=loss,
-            hidden_layers=(10, 5, 1), activation='tanh', output_activation='tanh',
-            dropout=0.1)
+            hidden_layers=(5, 3, 1), activation='tanh', output_activation='tanh')
 
 # %%
 history = model.fit(x, y, batch_size=1, epochs=10)
