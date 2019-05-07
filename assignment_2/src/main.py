@@ -3,6 +3,7 @@ import keras
 import numpy as np
 from keras.optimizers import Adam
 from keras.utils import plot_model
+from sklearn.metrics import mean_squared_error
 
 from src.model.mlp import MLP
 from src.utils.data_handling import process_data, normalize_data
@@ -49,6 +50,8 @@ predictions = model.predict(test_1, 200)
 plot_comparison(predictions, y_test)
 plot_model(model.model, to_file='images/model.png', show_shapes=True)
 
+#%%
+np.sqrt(mean_squared_error(y_test, predictions))
 
 # %% SEQ-2-SEQ
 def plot_prediction(x, y_true, y_pred):
