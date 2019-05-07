@@ -18,32 +18,36 @@ def normalize_data(time_series: np.ndarray) -> np.ndarray:
     return min_max_scaler.fit_transform(time_series)
 
 
-def process_data(time_series: np.ndarray, window_size: int, dimensions: int = 2) -> Tuple[np.ndarray, np.ndarray]:
+def process_data(data: np.ndarray, x_window_size: int, y_window_size: int = 1,
+                 dimensions: int = 2) -> Tuple[np.ndarray, np.ndarray]:
     """
     Method that process a time series and creates the data required to train and test the
     neural network.
 
-    For example, for a windows of size 3:
+    For example, for a x windows of size 3 and y, 1:
 
     [1, 2, 3, 4, 5] ->  [[1, 2, 3], [2, 3, 4]]; [[4], [5]]
 
-    :param time_series: time series data
-    :param window_size: number of data points that are included in the x elements
+    :param data: time series data
+    :param x_window_size: number of data points that are included in the x elements
+    :param y_window_size: number of data points that are included in the y elements
+    :param dimensions: dimensionality of the data, 2D or 3D depending of the network
     :return: tuple with the values of x and y and the specified shapes
     """
-    n_possible_elements = time_series.shape[0] - window_size - 1
+    n_possible_elements = data.shape[0] - x_window_size - y_window_size
     if dimensions == 2:
-        shape_x = (window_size,)
-        shape_y = (1,)
+        shape_x = (x_window_size,)
+        shape_y = (y_window_size,)
     else:
-        shape_x = (window_size, 1)
-        shape_y = (1, 1)
+        shape_x = (x_window_size, 1)
+        shape_y = (y_window_size, 1)
     x = np.empty((n_possible_elements,) + shape_x)
     y = np.empty((n_possible_elements,) + shape_y)
     for i in range(n_possible_elements):
-        end = i + window_size
-        x_element = np.reshape(time_series[i:end], newshape=shape_x)
-        y_element = np.reshape(time_series[end], newshape=shape_y)
+        x_end = i + x_window_size
+        y_end = x_end + y_window_size
+        x_element = np.reshape(data[i:x_end], newshape=shape_x)
+        y_element = np.reshape(data[x_end:y_end], newshape=shape_y)
         x[i] = x_element
         y[i] = y_element
     return x, y

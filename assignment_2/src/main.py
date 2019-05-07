@@ -16,9 +16,9 @@ time_series: np.ndarray = np.loadtxt('data/Xtrain.csv', delimiter=',')
 data_points = time_series.shape[0]
 
 # %%
-time_series = normalize_data(time_series)
-windows = 30
-x, y = process_data(time_series, window_size=windows, dimensions=2)
+#time_series = normalize_data(time_series)
+windows = 3
+x, y = process_data(time_series, x_window_size=windows, y_window_size=2, dimensions=3)
 
 # %% split train-test
 x_test = x[800:1000]
