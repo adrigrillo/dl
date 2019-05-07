@@ -31,7 +31,7 @@ class RNN:
             predicted_value = self.model.predict(data)
             predictions[i] = predicted_value.item()
             # remove first element and add the prediction
-            data = np.reshape(np.append(data[0][1:], predicted_value.item()), newshape=data_shape)
+            data = np.reshape(np.append(data[0][0][1:], predicted_value.item()), newshape=data_shape)
         return predictions
 
     def save_model(self, name):
