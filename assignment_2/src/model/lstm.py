@@ -3,7 +3,7 @@ from typing import Tuple
 from keras import Input, Model
 from keras.callbacks import History
 from keras.engine.saving import load_model
-from keras.layers import Flatten, Dense, np, LSTM
+from keras.layers import Flatten, Dense, np, LSTM, Activation
 from keras.optimizers import Optimizer
 
 
@@ -14,7 +14,8 @@ class RNN:
         x_data = LSTM(50, activation=activation, return_sequences=True)(inputs)
         x_data = LSTM(100, activation=activation, return_sequences=True)(x_data)
         x_data = LSTM(200, activation=activation)(x_data)
-        x_data = Dense(6, activation=activation)(x_data)
+        x_data = Dense(10)(x_data)
+        x_data = Activation(activation=activation)(x_data)
         outputs = Dense(1, activation=output_activation)(x_data)
         self.model = Model(inputs=inputs, outputs=outputs)
         self.model.compile(optimizer=optimizer, loss=loss)
