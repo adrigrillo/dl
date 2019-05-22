@@ -3,7 +3,7 @@ from typing import Tuple
 from keras import Input, Model
 from keras.callbacks import History
 from keras.engine.saving import load_model
-from keras.layers import Flatten, Dense, np, LSTM, Activation
+from keras.layers import Dense, np, LSTM, Activation
 from keras.optimizers import Optimizer
 
 

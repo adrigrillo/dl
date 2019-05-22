@@ -1,3 +1,6 @@
+# Deep Learning
+## Logistic regression
+
 How to use Logistic Regression
 
 There are two execution modes:

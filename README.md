@@ -1,2 +1,3 @@
-# dl
-Deep Learning assignments
+# Deep Learning
+
+Implementation of logistic regression and 
